@@ -167,9 +167,23 @@
         </dependencies>
     </dependencyManagement>
 
+
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>${maven.scr.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-scr-scrdescriptor</id>
+                            <goals>
+                                <goal>scr</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
@@ -178,7 +192,7 @@
                     <configuration>
                         <obrRepository>NONE</obrRepository>
                         <instructions>
-                            <SCM-Revision>${buildNumber}</SCM-Revision>
+                            <SCM-Revision>${maven.buildnumber.plugin.version}</SCM-Revision>
                         </instructions>
                     </configuration>
                 </plugin>
