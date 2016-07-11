@@ -121,10 +121,10 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             if(log.isDebugEnabled()){
                 log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
             }
-            throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), context.getSubject(), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException("Authentication Failed");
+            throw new AuthenticationFailedException("Authentication Failed", context.getSubject());
         }
     }
 

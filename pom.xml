@@ -115,6 +115,9 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <properties>
+        <identity.framework.version>5.1.1-SNAPSHOT</identity.framework.version>
+    </properties>
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.requestpath.basicauth</module>
         <module>features/org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.server.feature</module>
