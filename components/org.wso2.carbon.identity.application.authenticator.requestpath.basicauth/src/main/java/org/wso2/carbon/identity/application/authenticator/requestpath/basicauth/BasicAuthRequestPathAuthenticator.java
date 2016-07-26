@@ -118,13 +118,14 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             context.setSubject(AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
                     FrameworkUtils.prependUserStoreDomainToName(username)));
         } catch (IdentityRuntimeException e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
             }
-            throw new AuthenticationFailedException(e.getMessage(), context.getSubject(), e);
+            throw new AuthenticationFailedException(e.getMessage(), AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(username), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException("Authentication Failed", context.getSubject());
+            throw new AuthenticationFailedException("Authentication Failed", AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
+                    username));
         }
     }
 
