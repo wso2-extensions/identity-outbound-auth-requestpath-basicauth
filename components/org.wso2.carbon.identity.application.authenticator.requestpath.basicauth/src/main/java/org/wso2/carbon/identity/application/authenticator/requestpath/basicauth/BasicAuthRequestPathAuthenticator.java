@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.I
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.internal.BasicAuthRequestPathAuthenticatorServiceComponent;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -88,7 +89,8 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
         String username = credentials.substring(0, credentials.indexOf(":"));
         String password = credentials.substring(credentials.indexOf(":") + 1);
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            throw new AuthenticationFailedException("username and password cannot be empty");
+            throw new AuthenticationFailedException("username and password cannot be empty", User.getUserFromUserName
+                    (username));
         }
 
         try {
@@ -98,8 +100,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             boolean isAuthenticated = userStoreManager.authenticate(
                     MultitenantUtils.getTenantAwareUsername(username), password);
             if (!isAuthenticated) {
-                throw new InvalidCredentialsException("Authentication Failed", AuthenticatedUser
-                        .createLocalAuthenticatedUserFromSubjectIdentifier(username));
+                throw new InvalidCredentialsException("Authentication Failed", User.getUserFromUserName(username));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Authenticated user " + username);
@@ -128,11 +129,10 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             if (log.isDebugEnabled()) {
                 log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
             }
-            throw new AuthenticationFailedException(e.getMessage(), AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(username), e);
+            throw new AuthenticationFailedException(e.getMessage(), User.getUserFromUserName(username), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException("Authentication Failed", AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
-                    username));
+            throw new AuthenticationFailedException("Authentication Failed", User.getUserFromUserName(username));
         }
     }
 
