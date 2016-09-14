@@ -251,7 +251,7 @@
         <!--Carbon Kernel Version-->
         <carbon.kernel.version>4.4.7</carbon.kernel.version>
 
-        <carbon.identity.framework.version>5.2.1</carbon.identity.framework.version>
+        <carbon.identity.framework.version>5.5.0-SNAPSHOT</carbon.identity.framework.version>
         <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
         <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
