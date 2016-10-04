@@ -270,7 +270,6 @@
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
 
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
-
     </properties>
 
 </project>
