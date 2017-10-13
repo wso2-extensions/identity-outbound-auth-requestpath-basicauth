@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,13 +21,11 @@ package org.wso2.carbon.identity.application.authenticator.requestpath.basicauth
 import org.apache.commons.logging.Log;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
+import org.mockito.MockitoAnnotations;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
-import org.testng.Assert;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.testng.annotations.DataProvider;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import static org.mockito.Matchers.anyString;
@@ -35,8 +33,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
+import org.testng.Assert;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,7 +77,6 @@ public class BasicAuthRequestPathAuthenticatorTest {
 
     @Test(dataProvider = "headerValue")
     public void testCanHandle(String header, String sectoken, boolean expected, boolean isDebugEnabled) throws Exception {
-
         mockLog = mock(Log.class);
         enableDebugLogs(mockLog, isDebugEnabled);
         doAnswer(new Answer<Object>() {
@@ -95,7 +93,6 @@ public class BasicAuthRequestPathAuthenticatorTest {
 
         assertEquals(basicAuthRequestPathAuthenticator.canHandle(mockRequest),expected,
                 "Invalid can handle response for the request.");
-
     }
 
     @Test
@@ -105,7 +102,7 @@ public class BasicAuthRequestPathAuthenticatorTest {
 
     @Test
     public void testGetContextIdentifier() throws Exception {
-        assertEquals(basicAuthRequestPathAuthenticator.getContextIdentifier(mockRequest), null);
+        assertNull(basicAuthRequestPathAuthenticator.getContextIdentifier(mockRequest));
     }
 
     @Test
@@ -119,7 +116,6 @@ public class BasicAuthRequestPathAuthenticatorTest {
     }
 
     private static void enableDebugLogs(final Log mockedLog, boolean isDebugEnabled) throws NoSuchFieldException, IllegalAccessException {
-
         when(mockedLog.isDebugEnabled()).thenReturn(isDebugEnabled);
         Field field = BasicAuthRequestPathAuthenticator.class.getDeclaredField("log");
         field.setAccessible(true);
