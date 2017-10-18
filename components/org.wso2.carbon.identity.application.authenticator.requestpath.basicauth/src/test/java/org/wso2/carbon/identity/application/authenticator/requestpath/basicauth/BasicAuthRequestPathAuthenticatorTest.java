@@ -23,14 +23,12 @@ import org.apache.commons.logging.Log;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.IObjectFactory;
 import org.mockito.Mock;
 import org.testng.annotations.*;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.*;
 import static org.testng.Assert.assertEquals;
@@ -44,6 +42,7 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -52,16 +51,14 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 
 @PrepareForTest({User.class, IdentityTenantUtil.class, BasicAuthRequestPathAuthenticatorServiceComponent.class, MultitenantUtils.class, AuthenticatedUser.class, FrameworkUtils.class, IdentityUtil.class})
-public class BasicAuthRequestPathAuthenticatorTest extends PowerMockTestCase {
+public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBaseTest{
 
     private BasicAuthRequestPathAuthenticator basicAuthRequestPathAuthenticator;
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-    private String debugMsg;
     private String dummyUserName = "testUsername";
     private String dummyPassword = "testPassword";
     private int dummyTenantId = -1234;
@@ -108,17 +105,6 @@ public class BasicAuthRequestPathAuthenticatorTest extends PowerMockTestCase {
 
     @Test(dataProvider = "header")
     public void testCanHandle(String header, String sectoken, boolean expected, boolean isDebugEnabled) throws Exception {
-        mockLog = mock(Log.class);
-        enableDebugLogs(mockLog, isDebugEnabled);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-
-                debugMsg = (String) invocation.getArguments()[0];
-                return null;
-            }
-        }).when(mockLog).debug(anyString());
-
         when(mockRequest.getHeader(AUTHORIZATION_HEADER_NAME)).thenReturn(header);
         when(mockRequest.getParameter("sectoken")).thenReturn(sectoken);
 
@@ -247,13 +233,6 @@ public class BasicAuthRequestPathAuthenticatorTest extends PowerMockTestCase {
     @Test
     public void testGetName() throws Exception {
         assertEquals(basicAuthRequestPathAuthenticator.getName(), AUTHENTICATOR_NAME);
-    }
-
-    private static void enableDebugLogs(final Log mockedLog, boolean isDebugEnabled) throws NoSuchFieldException, IllegalAccessException {
-        when(mockedLog.isDebugEnabled()).thenReturn(isDebugEnabled);
-        Field field = BasicAuthRequestPathAuthenticator.class.getDeclaredField("log");
-        field.setAccessible(true);
-        field.set(null, mockedLog);
     }
 
     @ObjectFactory
