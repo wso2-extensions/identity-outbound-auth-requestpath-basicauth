@@ -52,8 +52,8 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
     @Override
     public boolean canHandle(HttpServletRequest request) {
 
-        if (log.isTraceEnabled()) {
-            log.trace("Inside canHandle()");
+        if (log.isDebugEnabled()) {
+            log.debug("Inside canHandle()");
         }
 
         String headerValue = request.getHeader(AUTHORIZATION_HEADER_NAME);
