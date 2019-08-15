@@ -47,7 +47,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BASIC_AUTH_SCHEMA = "Basic";
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
-    private static Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticator.class);
+    private static final Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticator.class);
 
     @Override
     public boolean canHandle(HttpServletRequest request) {
