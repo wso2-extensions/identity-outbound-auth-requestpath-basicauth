@@ -22,7 +22,7 @@
         <groupId>org.wso2.carbon.identity.local.auth.requestpath.basic</groupId>
         <artifactId>identity-application-auth-requestpath-basicauth</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>5.3.3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
