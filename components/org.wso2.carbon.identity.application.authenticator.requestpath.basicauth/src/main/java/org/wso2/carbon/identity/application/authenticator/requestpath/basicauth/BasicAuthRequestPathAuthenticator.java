@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.multi.attribute.login.mgt.ResolvedUserResult;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -92,7 +93,17 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             throw new AuthenticationFailedException("username and password cannot be empty", User.getUserFromUserName
                     (username));
         }
-
+        String tenantDomain = MultitenantUtils.getTenantDomain(username);
+        if (BasicAuthRequestPathAuthenticatorServiceComponent.getMultiAttributeLoginService().
+                isEnabled(tenantDomain)) {
+            ResolvedUserResult resolvedUser = BasicAuthRequestPathAuthenticatorServiceComponent.
+                    getMultiAttributeLoginService().resolveUser(MultitenantUtils.
+                    getTenantAwareUsername(username), tenantDomain);
+            if (resolvedUser != null && ResolvedUserResult.UserResolvedStatus.SUCCESS.
+                    equals(resolvedUser.getResolvedStatus())) {
+                username = UserCoreUtil.addTenantDomainToEntry(resolvedUser.getUser().getUsername() , tenantDomain);
+            }
+        }
         try {
             int tenantId = IdentityTenantUtil.getTenantIdOfUser(username);
             UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.
@@ -107,7 +118,6 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             }
 
             Map<String, Object> authProperties = context.getProperties();
-            String tenantDomain = MultitenantUtils.getTenantDomain(username);
 
             if (authProperties == null) {
                 authProperties = new HashMap<String, Object>();

@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.osgi.service.component.ComponentContext;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.identity.multi.attribute.login.mgt.MultiAttributeLoginService;
 import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -37,6 +38,9 @@ public class BasicAuthRequestPathAuthenticatorServiceComponentTest extends Power
 
     @Mock
     ComponentContext mockComponentContext;
+
+    @Mock
+    MultiAttributeLoginService mockMultiAttributeLoginService;
 
     @BeforeTest
     public void setup() {
@@ -58,5 +62,16 @@ public class BasicAuthRequestPathAuthenticatorServiceComponentTest extends Power
     @Test
     public void testUnsetRealmService() throws Exception {
         basicAuthRequestPathAuthenticatorServiceComponent.unsetRealmService(mockRealmService);
+    }
+
+    @Test
+    public void testSetMultiAttributeLoginService() throws Exception {
+        basicAuthRequestPathAuthenticatorServiceComponent.setMultiAttributeLoginService(mockMultiAttributeLoginService);
+        assertNotNull(BasicAuthRequestPathAuthenticatorServiceComponent.getMultiAttributeLoginService());
+    }
+
+    @Test
+    public void testUnsetMultiAttributeLoginService() throws Exception {
+        basicAuthRequestPathAuthenticatorServiceComponent.unsetMultiAttributeLoginService(mockMultiAttributeLoginService);
     }
 }

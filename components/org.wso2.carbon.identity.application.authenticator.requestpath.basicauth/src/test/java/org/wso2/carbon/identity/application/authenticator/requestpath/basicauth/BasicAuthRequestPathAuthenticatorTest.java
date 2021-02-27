@@ -49,6 +49,7 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.multi.attribute.login.mgt.MultiAttributeLoginService;
 import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -92,6 +93,9 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
 
     @Mock
     RealmService mockRealmService;
+
+    @Mock
+    MultiAttributeLoginService mockMultiAttributeLoginService;
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -171,6 +175,11 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
         when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
 
+        when(BasicAuthRequestPathAuthenticatorServiceComponent.getMultiAttributeLoginService()).
+                thenReturn(mockMultiAttributeLoginService);
+        when(mockMultiAttributeLoginService.isEnabled(MultitenantUtils.getTenantDomain(dummyUserName))).
+                thenReturn(false);
+
         mockStatic(User.class);
         mockStatic(MultitenantUtils.class);
         when(User.getUserFromUserName(dummyUserName)).thenReturn(new User());
@@ -205,6 +214,11 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         when(BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService()).thenReturn(mockRealmService);
         when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
         when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
+
+        when(BasicAuthRequestPathAuthenticatorServiceComponent.getMultiAttributeLoginService()).
+                thenReturn(mockMultiAttributeLoginService);
+        when(mockMultiAttributeLoginService.isEnabled(MultitenantUtils.getTenantDomain(dummyUserName))).
+                thenReturn(false);
 
         mockStatic(User.class);
         mockStatic(MultitenantUtils.class);
