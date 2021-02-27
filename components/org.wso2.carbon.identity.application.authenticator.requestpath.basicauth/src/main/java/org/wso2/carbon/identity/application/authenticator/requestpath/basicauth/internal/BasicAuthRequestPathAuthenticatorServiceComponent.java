@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.BasicAuthRequestPathAuthenticator;
+import org.wso2.carbon.identity.multi.attribute.login.mgt.MultiAttributeLoginService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,6 +39,12 @@ public class BasicAuthRequestPathAuthenticatorServiceComponent {
     private static final Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticatorServiceComponent.class);
 
     private static RealmService realmService;
+    private static MultiAttributeLoginService multiAttributeLoginService;
+
+    public static MultiAttributeLoginService getMultiAttributeLoginService() {
+
+        return multiAttributeLoginService;
+    }
 
     public static RealmService getRealmService() {
         return realmService;
@@ -79,5 +86,23 @@ public class BasicAuthRequestPathAuthenticatorServiceComponent {
             log.debug("UnSetting the Realm Service");
         }
         BasicAuthRequestPathAuthenticatorServiceComponent.realmService = null;
+    }
+
+
+    @Reference(
+            name = "MultiAttributeLoginService",
+            service = MultiAttributeLoginService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetMultiAttributeLoginService")
+    protected void setMultiAttributeLoginService(MultiAttributeLoginService multiAttributeLoginService) {
+
+        BasicAuthRequestPathAuthenticatorServiceComponent.multiAttributeLoginService = multiAttributeLoginService;
+    }
+
+    protected void unsetMultiAttributeLoginService(MultiAttributeLoginService multiAttributeLoginService) {
+
+        BasicAuthRequestPathAuthenticatorServiceComponent.multiAttributeLoginService = null;
+
     }
 }
