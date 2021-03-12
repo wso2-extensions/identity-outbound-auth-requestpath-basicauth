@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.multi.attribute.login.mgt.ResolvedUserResult;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,15 +95,11 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
                     (username));
         }
         String tenantDomain = MultitenantUtils.getTenantDomain(username);
-        if (BasicAuthRequestPathAuthenticatorServiceComponent.getMultiAttributeLoginService().
-                isEnabled(tenantDomain)) {
-            ResolvedUserResult resolvedUser = BasicAuthRequestPathAuthenticatorServiceComponent.
-                    getMultiAttributeLoginService().resolveUser(MultitenantUtils.
-                    getTenantAwareUsername(username), tenantDomain);
-            if (resolvedUser != null && ResolvedUserResult.UserResolvedStatus.SUCCESS.
-                    equals(resolvedUser.getResolvedStatus())) {
-                username = UserCoreUtil.addTenantDomainToEntry(resolvedUser.getUser().getUsername() , tenantDomain);
-            }
+        ResolvedUserResult resolvedUserResult = FrameworkUtils.processMultiAttributeLoginIdentification(
+                MultitenantUtils.getTenantAwareUsername(username), tenantDomain);
+        if (resolvedUserResult != null && ResolvedUserResult.UserResolvedStatus.SUCCESS.
+                equals(resolvedUserResult.getResolvedStatus())) {
+            username = UserCoreUtil.addTenantDomainToEntry(resolvedUserResult.getUser().getUsername() , tenantDomain);
         }
         try {
             int tenantId = IdentityTenantUtil.getTenantIdOfUser(username);
