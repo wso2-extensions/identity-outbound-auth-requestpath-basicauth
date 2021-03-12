@@ -37,6 +37,7 @@ public class BasicAuthRequestPathAuthenticatorServiceComponentTest extends Power
 
     @Mock
     ComponentContext mockComponentContext;
+
     @BeforeTest
     public void setup() {
         initMocks(this);
