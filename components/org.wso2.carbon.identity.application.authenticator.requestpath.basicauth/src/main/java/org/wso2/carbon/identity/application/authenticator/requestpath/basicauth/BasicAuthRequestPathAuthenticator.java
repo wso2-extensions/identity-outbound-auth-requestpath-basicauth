@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.multi.attribute.login.mgt.ResolvedUserResult;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -94,6 +95,12 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             throw new AuthenticationFailedException("username and password cannot be empty", User.getUserFromUserName
                     (username));
         }
+
+        if (!IdentityUtil.isEmailUsernameValidationDisabled()) {
+            FrameworkUtils.validateUsername(username, context);
+            username = FrameworkUtils.preprocessUsername(username, context);
+        }
+
         String tenantDomain = MultitenantUtils.getTenantDomain(username);
         ResolvedUserResult resolvedUserResult = FrameworkUtils.processMultiAttributeLoginIdentification(
                 MultitenantUtils.getTenantAwareUsername(username), tenantDomain);

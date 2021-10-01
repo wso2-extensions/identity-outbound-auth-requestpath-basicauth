@@ -176,6 +176,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
         when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
                 MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
+        when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
         mockStatic(User.class);
         mockStatic(MultitenantUtils.class);
         when(User.getUserFromUserName(dummyUserName)).thenReturn(new User());
@@ -228,6 +229,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
         when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
                 MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
+        when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
