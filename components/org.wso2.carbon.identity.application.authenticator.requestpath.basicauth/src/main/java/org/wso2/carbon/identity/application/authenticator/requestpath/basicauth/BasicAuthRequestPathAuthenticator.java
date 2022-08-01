@@ -157,7 +157,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
 
     @Override
     public String getFriendlyName() {
-        return "basic-auth";
+        return "Basic Auth";
     }
 
     @Override
