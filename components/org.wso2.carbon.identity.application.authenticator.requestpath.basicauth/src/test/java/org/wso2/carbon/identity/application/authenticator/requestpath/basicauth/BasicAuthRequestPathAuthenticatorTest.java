@@ -250,7 +250,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
 
     @Test
     public void testGetFriendlyName() throws Exception {
-        assertEquals(basicAuthRequestPathAuthenticator.getFriendlyName(), "basic-auth");
+        assertEquals(basicAuthRequestPathAuthenticator.getFriendlyName(), "Basic Auth");
     }
 
     @Test
