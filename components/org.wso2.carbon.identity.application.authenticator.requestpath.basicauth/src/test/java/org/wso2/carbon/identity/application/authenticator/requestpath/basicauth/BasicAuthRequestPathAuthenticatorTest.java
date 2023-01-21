@@ -49,7 +49,7 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.multi.attribute.login.mgt.ResolvedUserResult;
+import org.wso2.carbon.identity.login.resolver.mgt.ResolvedUserResult;
 import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -174,7 +174,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
 
         mockStatic(FrameworkUtils.class);
         ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
-        when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
+        when(FrameworkUtils.processLoginResolverIdentification(dummyUserName,
                 MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
         when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
         mockStatic(User.class);
@@ -227,7 +227,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         mockStatic(FrameworkUtils.class);
         when(FrameworkUtils.prependUserStoreDomainToName(dummyUserName)).thenReturn(dummyUserName);
         ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
-        when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
+        when(FrameworkUtils.processLoginResolverIdentification(dummyUserName,
                 MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
         when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
         doAnswer(new Answer<Object>() {
