@@ -22,13 +22,12 @@ import org.mockito.Mock;
 import org.osgi.service.component.ComponentContext;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static org.testng.Assert.assertNotNull;
 
-public class BasicAuthRequestPathAuthenticatorServiceComponentTest extends PowerMockIdentityBaseTest {
+public class BasicAuthRequestPathAuthenticatorServiceComponentTest {
 
     private BasicAuthRequestPathAuthenticatorServiceComponent basicAuthRequestPathAuthenticatorServiceComponent;
 
@@ -40,7 +39,7 @@ public class BasicAuthRequestPathAuthenticatorServiceComponentTest extends Power
 
     @BeforeTest
     public void setup() {
-        initMocks(this);
+        openMocks(this);
         basicAuthRequestPathAuthenticatorServiceComponent = new BasicAuthRequestPathAuthenticatorServiceComponent();
     }
 
