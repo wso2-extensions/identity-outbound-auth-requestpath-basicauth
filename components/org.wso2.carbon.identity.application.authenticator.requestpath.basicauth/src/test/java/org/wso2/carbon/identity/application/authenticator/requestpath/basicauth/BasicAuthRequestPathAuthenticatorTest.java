@@ -20,24 +20,22 @@ package org.wso2.carbon.identity.application.authenticator.requestpath.basicauth
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.testng.IObjectFactory;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -50,7 +48,6 @@ import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.multi.attribute.login.mgt.ResolvedUserResult;
-import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -61,9 +58,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 
-@PrepareForTest({User.class, IdentityTenantUtil.class, BasicAuthRequestPathAuthenticatorServiceComponent.class,
-        MultitenantUtils.class, AuthenticatedUser.class, FrameworkUtils.class, IdentityUtil.class})
-public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBaseTest{
+public class BasicAuthRequestPathAuthenticatorTest {
 
     private BasicAuthRequestPathAuthenticator basicAuthRequestPathAuthenticator;
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
@@ -96,7 +91,7 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
 
     @BeforeMethod
     public void setUp() throws Exception {
-        initMocks(this);
+        MockitoAnnotations.openMocks(this);
         basicAuthRequestPathAuthenticator = new BasicAuthRequestPathAuthenticator();
     }
 
@@ -144,13 +139,14 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         doThrow(new AuthenticationFailedException("username and password cannot be empty")).when
                 (mockBasicAuthReqPathAuthenticator).processAuthenticationResponse(mockRequest, mockResponse, mockContext);
 
-        mockStatic(User.class);
-        when(User.getUserFromUserName(dummyUserName)).thenReturn(new User());
+        try (MockedStatic<User> userStatic = Mockito.mockStatic(User.class)) {
+            userStatic.when(() -> User.getUserFromUserName(dummyUserName)).thenReturn(new User());
 
-        try {
-            basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
-        } catch (AuthenticationFailedException ex) {
-            assertEquals(ex.getMessage(), "username and password cannot be empty");
+            try {
+                basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
+            } catch (AuthenticationFailedException ex) {
+                assertEquals(ex.getMessage(), "username and password cannot be empty");
+            }
         }
     }
 
@@ -160,33 +156,39 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         when(mockRequest.getHeader(AUTHORIZATION_HEADER_NAME)).thenReturn(null);
         when(mockRequest.getParameter("sectoken")).thenReturn("dGVzdFVzZXJuYW1lOnRlc3RQYXNzd29yZA==");
 
-        mockStatic(IdentityTenantUtil.class);
-        when(IdentityTenantUtil.getTenantIdOfUser(dummyUserName)).thenReturn(dummyTenantId);
+        try (MockedStatic<IdentityTenantUtil> idTenantStatic = Mockito.mockStatic(IdentityTenantUtil.class);
+             MockedStatic<BasicAuthRequestPathAuthenticatorServiceComponent> compStatic = Mockito
+                     .mockStatic(BasicAuthRequestPathAuthenticatorServiceComponent.class);
+             MockedStatic<FrameworkUtils> fwStatic = Mockito.mockStatic(FrameworkUtils.class);
+             MockedStatic<User> userStatic = Mockito.mockStatic(User.class);
+             MockedStatic<MultitenantUtils> multiStatic = Mockito.mockStatic(MultitenantUtils.class)) {
 
-        BasicAuthRequestPathAuthenticator mockBasicAuthReqPathAuthenticator = spy(new BasicAuthRequestPathAuthenticator());
-        doThrow(new InvalidCredentialsException("Authentication Failed")).when
-                (mockBasicAuthReqPathAuthenticator).processAuthenticationResponse(mockRequest, mockResponse, mockContext);
+            idTenantStatic.when(() -> IdentityTenantUtil.getTenantIdOfUser(dummyUserName)).thenReturn(dummyTenantId);
 
-        mockStatic(BasicAuthRequestPathAuthenticatorServiceComponent.class);
-        when(BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService()).thenReturn(mockRealmService);
-        when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
-        when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
+            BasicAuthRequestPathAuthenticator mockBasicAuthReqPathAuthenticator = spy(new BasicAuthRequestPathAuthenticator());
+            doThrow(new InvalidCredentialsException("Authentication Failed")).when
+                    (mockBasicAuthReqPathAuthenticator).processAuthenticationResponse(mockRequest, mockResponse, mockContext);
 
-        mockStatic(FrameworkUtils.class);
-        ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
-        when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
-                MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
-        when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
-        mockStatic(User.class);
-        mockStatic(MultitenantUtils.class);
-        when(User.getUserFromUserName(dummyUserName)).thenReturn(new User());
-        when(mockUserStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(dummyUserName), dummyPassword)).
-                thenReturn(false);
+            compStatic.when(BasicAuthRequestPathAuthenticatorServiceComponent::getRealmService)
+                    .thenReturn(mockRealmService);
+            when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
+            when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
 
-        try {
-            basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
-        } catch (InvalidCredentialsException ex) {
-            assertEquals(ex.getMessage(), "Authentication Failed");
+            ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
+            fwStatic.when(() -> FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
+                    MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
+            fwStatic.when(() -> FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
+
+            userStatic.when(() -> User.getUserFromUserName(dummyUserName)).thenReturn(new User());
+            multiStatic.when(() -> MultitenantUtils.getTenantAwareUsername(dummyUserName)).thenReturn(dummyUserName);
+            when(mockUserStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(dummyUserName), dummyPassword)).
+                    thenReturn(false);
+
+            try {
+                basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
+            } catch (InvalidCredentialsException ex) {
+                assertEquals(ex.getMessage(), "Authentication Failed");
+            }
         }
     }
 
@@ -204,43 +206,48 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
         when(mockRequest.getHeader(AUTHORIZATION_HEADER_NAME)).thenReturn(null);
         when(mockRequest.getParameter("sectoken")).thenReturn("dGVzdFVzZXJuYW1lOnRlc3RQYXNzd29yZA==");
 
-        mockStatic(IdentityTenantUtil.class);
-        when(IdentityTenantUtil.getTenantIdOfUser(dummyUserName)).thenReturn(dummyTenantId);
+        try (MockedStatic<IdentityTenantUtil> idTenantStatic = Mockito.mockStatic(IdentityTenantUtil.class);
+             MockedStatic<BasicAuthRequestPathAuthenticatorServiceComponent> compStatic = Mockito
+                     .mockStatic(BasicAuthRequestPathAuthenticatorServiceComponent.class);
+             MockedStatic<User> userStatic = Mockito.mockStatic(User.class);
+             MockedStatic<MultitenantUtils> multiStatic = Mockito.mockStatic(MultitenantUtils.class);
+             MockedStatic<IdentityUtil> idUtilStatic = Mockito.mockStatic(IdentityUtil.class);
+             MockedStatic<FrameworkUtils> fwStatic = Mockito.mockStatic(FrameworkUtils.class)) {
 
-        mockStatic(BasicAuthRequestPathAuthenticatorServiceComponent.class);
-        when(BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService()).thenReturn(mockRealmService);
-        when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
-        when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
+            idTenantStatic.when(() -> IdentityTenantUtil.getTenantIdOfUser(dummyUserName)).thenReturn(dummyTenantId);
 
-        mockStatic(User.class);
-        mockStatic(MultitenantUtils.class);
-        when(User.getUserFromUserName(dummyUserName)).thenReturn(new User());
-        when(mockUserStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(dummyUserName), dummyPassword)).
-                thenReturn(true);
-        when(MultitenantUtils.getTenantDomain(dummyUserName)).thenReturn("dummyTenantDomain");
+            compStatic.when(BasicAuthRequestPathAuthenticatorServiceComponent::getRealmService)
+                    .thenReturn(mockRealmService);
+            when(mockRealmService.getTenantUserRealm(dummyTenantId)).thenReturn(mockUserRealm);
+            when(mockUserRealm.getUserStoreManager()).thenReturn(mockUserStoreManager);
 
-        when(mockContext.getProperties()).thenReturn((HashMap)authPropMap);
+            userStatic.when(() -> User.getUserFromUserName(dummyUserName)).thenReturn(new User());
+            multiStatic.when(() -> MultitenantUtils.getTenantAwareUsername(dummyUserName)).thenReturn(dummyUserName);
+            when(mockUserStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(dummyUserName), dummyPassword)).
+                    thenReturn(true);
+            multiStatic.when(() -> MultitenantUtils.getTenantDomain(dummyUserName)).thenReturn("dummyTenantDomain");
 
-        mockStatic(IdentityUtil.class);
-        when(IdentityUtil.getPrimaryDomainName()).thenReturn("primaryDomain");
+            when(mockContext.getProperties()).thenReturn((HashMap)authPropMap);
 
-        mockStatic(FrameworkUtils.class);
-        when(FrameworkUtils.prependUserStoreDomainToName(dummyUserName)).thenReturn(dummyUserName);
-        ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
-        when(FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
-                MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
-        when(FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
+            idUtilStatic.when(IdentityUtil::getPrimaryDomainName).thenReturn("primaryDomain");
 
-                authenticatedUser = (AuthenticatedUser) invocation.getArguments()[0];
-                return null;
-            }
-        }).when(mockContext).setSubject(any(AuthenticatedUser.class));
+            fwStatic.when(() -> FrameworkUtils.prependUserStoreDomainToName(dummyUserName)).thenReturn(dummyUserName);
+            ResolvedUserResult resolvedUserResult = new ResolvedUserResult(ResolvedUserResult.UserResolvedStatus.FAIL);
+            fwStatic.when(() -> FrameworkUtils.processMultiAttributeLoginIdentification(dummyUserName,
+                    MultitenantUtils.getTenantDomain(dummyUserName))).thenReturn(resolvedUserResult);
+            fwStatic.when(() -> FrameworkUtils.preprocessUsername(dummyUserName, mockContext)).thenReturn(dummyUserName);
+            doAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocation) throws Throwable {
 
-        basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
-        assertEquals(authenticatedUser.getAuthenticatedSubjectIdentifier(), dummyUserName);
+                    authenticatedUser = (AuthenticatedUser) invocation.getArguments()[0];
+                    return null;
+                }
+            }).when(mockContext).setSubject(any(AuthenticatedUser.class));
+
+            basicAuthRequestPathAuthenticator.processAuthenticationResponse(mockRequest, mockResponse, mockContext);
+            assertEquals(authenticatedUser.getAuthenticatedSubjectIdentifier(), dummyUserName);
+        }
     }
 
     @Test
@@ -256,10 +263,5 @@ public class BasicAuthRequestPathAuthenticatorTest  extends PowerMockIdentityBas
     @Test
     public void testGetName() throws Exception {
         assertEquals(basicAuthRequestPathAuthenticator.getName(), AUTHENTICATOR_NAME);
-    }
-
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }
